@@ -69,25 +69,23 @@ public class AccesoJDBC implements I_Acceso_Datos {
 
 	@Override
 	public HashMap<Integer, Deposito> obtenerDepositos() {
-		HashMap<Integer, Deposito> nuevo = new HashMap();
+		HashMap<Integer, Deposito> nuevo = new HashMap<Integer, Deposito>();
 		String query = "SELECT * from depositos";
 		Statement st;
 		ResultSet rs;
-
+		Deposito aux;
 		try {
 			st = conn1.createStatement();
 			rs = st.executeQuery(query);
 			Deposito asdf;
 			int indice = 0;
 			while (rs.next()) {
-				asdf = new Deposito(rs.getString("nombre"), rs.getInt("valor"), rs.getInt("cantidad"));
-				nuevo.put(indice, asdf);
-				indice++;
+				indice = rs.getInt("valor");
+				aux = new Deposito(rs.getString("nombre"), rs.getInt("valor"), rs.getInt("cantidad"));
+				nuevo.put(indice, aux);
 
 			}
 
-			conn1.close();
-			;
 		} catch (Exception e) {
 			// TODO: handle exception
 		}
@@ -102,21 +100,20 @@ public class AccesoJDBC implements I_Acceso_Datos {
 		String query = "SELECT * from depositos";
 		Statement st;
 		ResultSet rs;
+		Dispensador asdf;
 
 		try {
 			st = conn1.createStatement();
 			rs = st.executeQuery(query);
-			Dispensador asdf;
 			String indice = null;
 			while (rs.next()) {
+				indice = rs.getString("clave");
 				asdf = new Dispensador(rs.getString("clave"), rs.getString("nombre"), rs.getInt("precio"),
 						rs.getInt("cantidad"));
 				nuevos.put(indice, asdf);
-				indice = rs.getString("clave");
 
 			}
 
-			conn1.close();
 			;
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -128,22 +125,25 @@ public class AccesoJDBC implements I_Acceso_Datos {
 	@Override
 	public boolean guardarDepositos(HashMap<Integer, Deposito> depositos) {
 		boolean todoOK = false;
-		PreparedStatement ps;
-		String query = "UPDATE `depositos` SET NOMBRE = ?, VALOR = ?, CANTIDAD = ?";
-		for (int i = 0; i < depositos.size(); i++) {
+		java.sql.PreparedStatement ps;
+
+		for (Integer key : depositos.keySet()) {
+			Deposito value = depositos.get(key);
+			String query = "UPDATE `depositos` SET cantidad=? WHERE  valor=" + key;
+
 			try {
-				ps = (PreparedStatement) conn1.prepareStatement(query);
-				ps.setString(1, depositos.get(i).getNombreMoneda());
-				ps.setInt(2, depositos.get(i).getValor());
-				ps.setInt(3, depositos.get(i).getCantidad());
+				ps = conn1.prepareStatement(query);
+				ps.setInt(1, value.getCantidad());
+				ps.executeUpdate();
 
 				if (ps.executeUpdate() == 1) {
 					todoOK = true;
 				}
 
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
+				todoOK = false;
 				e.printStackTrace();
+
 			}
 
 		}
@@ -154,9 +154,24 @@ public class AccesoJDBC implements I_Acceso_Datos {
 	@Override
 	public boolean guardarDispensadores(HashMap<String, Dispensador> dispensadores) {
 		boolean todoOK = false;
-		
+		java.sql.PreparedStatement ps;
+		String query;
 
+		for (String key : dispensadores.keySet()) {
+			Dispensador value = dispensadores.get(key);
+			query = "UPDATE `dispensadores` SET `cantidad`=? WHERE dispensadores.clave='" + key + "'";
+			try {
+				ps = conn1.prepareStatement(query);
+				ps.setInt(1, value.getCantidad());
+				ps.executeUpdate();
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return false;
+			}
+
+			
+		}
 		return todoOK;
 	}
-
 } // Fin de la clase

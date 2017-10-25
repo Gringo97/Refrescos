@@ -46,13 +46,14 @@ public class FicherosTexto implements I_Acceso_Datos {
 		int i = 0;
 		try {
 			while ((line = br.readLine()) != null) {
-
+				
 				String[] datosaux = line.split(";");
+				i = Integer.parseInt(datosaux[1].toString());
 				nuevo = new Deposito(datosaux[0].toString(), Integer.parseInt(datosaux[1].toString()),
 						Integer.parseInt(datosaux[2].toString()));
 
 				depositosCreados.put(i, nuevo);
-				i++;
+				
 
 			}
 		} catch (NumberFormatException e) {
@@ -80,19 +81,19 @@ public class FicherosTexto implements I_Acceso_Datos {
 			e.printStackTrace();
 		}
 		String line = "";
-		int a = 0;
-		String i = "aaaaa";
+		String key = null;
+		
 		try {
 			while ((line = br.readLine()) != null) {
-
+				
 				String[] datosaux = line.split(";");
-
+				key = datosaux[0].toString();
 				nuevo = new Dispensador(datosaux[0].toString(), datosaux[1].toString(),
 						Integer.parseInt(datosaux[2].toString()), Integer.parseInt(datosaux[3].toString()));
 				dispensadoresCreados = new HashMap();
-				i = i + String(a);
-				dispensadoresCreados.put(i, nuevo);
-				a++;
+				
+				dispensadoresCreados.put(key, nuevo);
+				
 
 			}
 		} catch (NumberFormatException e) {
@@ -116,34 +117,26 @@ public class FicherosTexto implements I_Acceso_Datos {
 	public boolean guardarDepositos(HashMap<Integer, Deposito> depositos) {
 		FileWriter fichero = null;
 		PrintWriter pw = null;
+		
 		boolean todoOK = false;
 		try {
 			fichero = new FileWriter("Ficheros/datos/depositos.txt");
 			pw = new PrintWriter(fichero);
 
-			for (int i = 0; i < depositos.size(); i++) {
-
-				pw.println(depositos.get(i).getNombreMoneda() + ";" + depositos.get(i).getValor() + ";"
-						+ depositos.get(i).getCantidad());
-
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			if (fichero != null) {
-				pw.close();
-				fichero.close();
-				todoOK = true;
+			for (Integer key:depositos.keySet()) {
+				Deposito value= depositos.get(key);
+				pw.println(value.getNombreMoneda()+";"+key+";"+value.getCantidad());
 
 			}
+			todoOK=true;
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			todoOK=false;
 			e.printStackTrace();
+			
 		}
+
+		
 
 		return todoOK;
 
@@ -159,29 +152,20 @@ public class FicherosTexto implements I_Acceso_Datos {
 			fichero = new FileWriter("Ficheros/datos/dispensadores.txt");
 			pw = new PrintWriter(fichero);
 
-			for (int i = 0; i < dispensadores.size(); i++) {
-
-				pw.println(dispensadores.get(i).getClave() + ";" + dispensadores.get(i).getNombreProducto() + ";"
-						+ dispensadores.get(i).getPrecio() + ";" + dispensadores.get(i).getCantidad());
-
-			}
-
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		try {
-			if (fichero != null) {
-				pw.close();
-				fichero.close();
-				todoOK = true;
+			for (String key:dispensadores.keySet()) {
+				Dispensador value=dispensadores.get(key);
+				pw.println(key+";"+value.getNombreProducto()+";"+value.getPrecio()+";"+value.getCantidad());
 
 			}
+			todoOK=true;
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			todoOK=false;
 			e.printStackTrace();
+			
 		}
+
+		
 
 		return todoOK;
 	}
